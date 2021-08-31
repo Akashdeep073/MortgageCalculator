@@ -11,10 +11,10 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 
 export class AppComponent implements OnInit {
  mortgageCal: FormGroup;
-  info: Info[]=[];
-  no_of_Payments=0;
-  mAmount=true;
-  iRate=true;
+  info: Info[] = [];
+  no_of_Payments: number = 0;
+  principle: number = 100000;
+  intRate: number = 5;
   multiplier:any =[1,52,26,24,12]
   terms = [
     { id: 1, name: "1 Year" },
@@ -62,19 +62,7 @@ export class AppComponent implements OnInit {
     { id: 30, name: "30 Years" },
   ];
 
-  amortizationMonths = [
-    { id: 1, name: "1 Month" },
-    { id: 2, name: "2 Months" },
-    { id: 3, name: "3 Months" },
-    { id: 4, name: "4 Months" },
-    { id: 5, name: "5 Months" },
-    { id: 6, name: "6 Months" },
-    { id: 7, name: "7 Months" },
-    { id: 8, name: "8 Months" },
-    { id: 9, name: "9 Month" },
-    { id: 10, name: "10 Months" },
-    { id: 11, name: "11 Months" }
-  ];
+
 
   paymentFrequencies = [
     { id: 1, name: "Weekly" },
@@ -96,52 +84,39 @@ export class AppComponent implements OnInit {
       mortgageAmount: [100000.00],
       interestRate: [5.00],
       amortizationYear: [25],
-      //amortizationMonth: [null],
-      paymentFrequency: [4],
-      //term: [5]
-    }, {
-      // validator: MustMatch('password', 'confirmPassword')
+      paymentFrequency: [4]
     });
   }
 
-  // convenience getter for easy access to form fields
-  //get f() { return this.mortgageCal.controls; }
-
   onCalculate(){
-    this.mAmount=true;
-    this.iRate=true;
-    let principle = this.mortgageCal.value['mortgageAmount'];
-    let intRate = this.mortgageCal.value['interestRate'];
-    console.log('intRate',intRate);
-    if(principle<=0||principle===null||intRate<=0||intRate===null){
-      if(principle<=0||principle===null)
-      this.mAmount=false;
-      if(intRate<=0||intRate===null)
-      this.iRate=false;
+    // this.mAmount=true;
+    // this.iRate=true;
+    this.principle = this.mortgageCal.value['mortgageAmount'];
+    this.intRate = this.mortgageCal.value['interestRate'];
+
+    if(!this.principle || !this.intRate){
       return;
     }
-      let totalNoPayments = this.mortgageCal.value['amortizationYear'] * this.multiplier[this.mortgageCal.value['paymentFrequency']];
-      let interest = (intRate/100)/this.multiplier[this.mortgageCal.value['paymentFrequency']];
 
-      console.log('interest',interest);
-      console.log('totalNoPayments',totalNoPayments);
-      let mortgagepayment = (principle*interest*Math.pow(1 + interest,totalNoPayments))/(Math.pow(1 + interest,totalNoPayments))-1;
-      console.log('mortgagepayment',mortgagepayment);
+    let totalNoPayments = this.mortgageCal.value['amortizationYear'] * this.multiplier[this.mortgageCal.value['paymentFrequency']];
+    let interest = (this.intRate/100)/this.multiplier[this.mortgageCal.value['paymentFrequency']];
+    let mortgagepayment = (this.principle*interest*Math.pow(1 + interest,totalNoPayments))/(Math.pow(1 + interest,totalNoPayments))-1;
 
-      this.no_of_Payments = totalNoPayments;
-      this.info[0].amortization = mortgagepayment;
-      this.info[1].amortization = principle;
-      this.info[2].amortization = (mortgagepayment*totalNoPayments) -principle;
-      this.info[3].amortization = mortgagepayment*totalNoPayments;
+    this.no_of_Payments = totalNoPayments;
+    this.info[0].amortization = mortgagepayment;
+    this.info[1].amortization = this.principle;
+    this.info[2].amortization = (mortgagepayment*totalNoPayments) - this.principle;
+    this.info[3].amortization = mortgagepayment*totalNoPayments;
   }
+
   getInfo(){
     return this.info;
   }
+
   submit() {
-    console.log(this.mortgageCal.value)
+    this.onCalculate();
   }
 }
-
 
 export class Info{
   category: string;
